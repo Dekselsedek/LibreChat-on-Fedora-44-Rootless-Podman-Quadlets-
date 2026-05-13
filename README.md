@@ -4,6 +4,7 @@ This guide describes the setup of LibreChat on Fedora 44 using systemd Quadlets.
 Troubleshooting: Error 139 (SIGSEGV) on Fedora 44
 
 During the deployment on Fedora 44, we identified a recurring crash with Exit Code 139 (Segmentation Fault) in the MongoDB container. While standard database optimizations are helpful, the root cause was tied to a conflict between the host's hardware security features and the container's glibc library.
+
 The Root Cause
 
 The primary culprit was SHSTK (Shadow Stack), a hardware-based security feature. In Fedora 44, the interaction between the host’s glibc and the MongoDB binary causes a memory conflict, resulting in a immediate SIGSEGV crash upon database activity.
