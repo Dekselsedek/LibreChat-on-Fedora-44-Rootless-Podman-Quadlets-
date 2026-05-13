@@ -1,35 +1,68 @@
 # LibreChat-on-Fedora-44-Rootless-Podman-Quadlets-
-This guide describes the setup of LibreChat on Fedora 44 using systemd Quadlets. This configuration ensures your containers run as native systemd services under a specific user context.
+LibreChat on Fedora: The Easy Way Guide
 
-Troubleshooting: Error 139 (SIGSEGV) on Fedora 44
+This guide describes how to run LibreChat on Fedora 44 using Podman and Quadlets. This setup fixes the Error 139 database crash.
 
-During the deployment on Fedora 44, we identified a recurring crash with Exit Code 139 (Segmentation Fault) in the MongoDB container. While standard database optimizations are helpful, the root cause was tied to a conflict between the host's hardware security features and the container's glibc library.
+Project Structure
 
-The Root Cause
+To keep things clean, separate the service files from your data.
 
-The primary culprit was SHSTK (Shadow Stack), a hardware-based security feature. In Fedora 44, the interaction between the host’s glibc and the MongoDB binary causes a memory conflict, resulting in a immediate SIGSEGV crash upon database activity.
-The Definitive Fix
+Quadlet Services: .config/containers/systemd/
+This is where the service files from this GitHub go.
 
-To resolve this, you must disable the hardware shadow stack capability for the database process and ensure correct user namespace mapping:
+App Config: containers/librechat/config/
+Put your librechat.env and librechat.yaml here.
 
-    Disable SHSTK: Add Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=-shstk to the [Service] section of your unit file.
+Database Data: containers/librechat/mongodb/
+This is where your database is saved.
 
-    Maintain Permissions: Use UserNS=keep-id to ensure the container's User ID matches your host User ID, preventing Permission Denied errors on your data volumes.
+User Images: containers/librechat/images/
+This is where your chat images are saved.
 
-Recommended Configuration for librechat-db.container
+Step by Step Instructions
 
-Incorporate these lines into your Quadlet or the resulting systemd service file:
-Ini, TOML
+Create the folders
+Open your terminal and run this command:
 
-[Service]
-# Fixes Error 139 (SIGSEGV) by disabling hardware shadow stack conflicts
-Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=-shstk
-# Ensures host UID matches container UID for volume permissions
-UserNS=keep-id
-Restart=always
+    mkdir -p ~/containers/librechat/config ~/containers/librechat/mongodb ~/containers/librechat/images ~/.config/containers/systemd
 
-Additional Stability Checklist
+Prepare your config files
+Put your librechat.yaml and librechat.env files into the containers/librechat/config/ folder.
+Important: Your .env file must have this line:
 
-    SELinux: Always append the :Z flag to your volume mounts (e.g., Volume=%h/containers/librechat/mongodb:/data/db:Z) to allow Fedora to label the files correctly for rootless access.
+    MONGO_URI=mongodb://librechat-db:27017/LibreChat
 
-    Kernel Tuning: For optimal performance, set vm.swappiness=1 and ensure Transparent Huge Pages (THP) are set to always on the host machine.
+Set up the service files
+Copy the .container and .network files from this GitHub into the .config/containers/systemd/ folder.
+The database file includes two special lines that fix the Fedora 44 crash:
+
+    Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=-shstk
+    UserNS=keep-id
+
+Start the chat
+Run these two commands:
+
+    systemctl --user daemon-reload
+    systemctl --user start librechat-app.service
+
+Now open your browser and go to 
+
+    http://localhost:3080
+
+Troubleshooting Error 139
+
+If the database keeps crashing with exit code 139, it is because Fedora 44 has a conflict with hardware security features. The line GLIBC_TUNABLES=glibc.cpu.hwcaps=-shstk in the service file fixes this. Also, ensure all folders use the :Z flag in the service file to allow Fedora to access them securely.
+
+    Reload systemd: systemctl --user daemon-reload
+
+Start the service: 
+
+    systemctl --user start librechat-app.service
+
+Verify: Open your browser to 
+
+    http://localhost:3080.
+
+SELinux: Always append the :Z flag to your volume mounts (e.g., Volume=%h/containers/librechat/mongodb:/data/db:Z) to allow Fedora to label the files correctly for rootless access.
+
+Kernel Tuning: For optimal performance, set vm.swappiness=1 and ensure Transparent Huge Pages (THP) are set to always on the host machine.
