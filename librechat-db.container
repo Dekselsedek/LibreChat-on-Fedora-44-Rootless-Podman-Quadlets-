@@ -1,0 +1,14 @@
+[Unit]
+Description=LibreChat Database
+
+[Container]
+ContainerName=librechat-db
+Image=docker.io/library/mongo:latest
+Volume=%h/containers/librechat/mongodb:/data/db:Z
+Network=systemd-librechat.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
