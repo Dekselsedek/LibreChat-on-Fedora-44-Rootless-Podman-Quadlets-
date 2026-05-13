@@ -5,9 +5,9 @@ Before=librechat-app.service
 [Container]
 ContainerName=librechat-db
 Image=docker.io/library/mongo:latest
-Volume=/home/koosdekker/containers/librechat/mongodb:/data/db:Z
+Volume=%h/containers/librechat/mongodb:/data/db:Z
 Network=systemd-librechat
-NetworkAlias=systemd-librechat
+NetworkAlias=librechat-db
 AutoUpdate=registry
 Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
 UserNS=keep-id
