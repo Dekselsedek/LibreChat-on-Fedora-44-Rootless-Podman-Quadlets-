@@ -21,48 +21,35 @@ This is where your chat images are saved.
 
 Step by Step Instructions
 
-Create the folders
+1. Create the folders
 Open your terminal and run this command:
 
     mkdir -p ~/containers/librechat/config ~/containers/librechat/mongodb ~/containers/librechat/images ~/.config/containers/systemd
 
-Prepare your config files
+2. Prepare your config files
 Put your librechat.yaml and librechat.env files into the containers/librechat/config/ folder.
 Important: Your .env file must have this line:
 
     MONGO_URI=mongodb://librechat-db:27017/LibreChat
 
-Set up the service files
+3. Set up the service files
 Copy the .container and .network files from this GitHub into the .config/containers/systemd/ folder.
 The database file includes two special lines that fix the Fedora 44 crash:
 
     Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=-shstk
     UserNS=keep-id
 
-Start the chat
+4. Start the chat
 Run these two commands:
 
     systemctl --user daemon-reload
     systemctl --user start librechat-app.service
 
-Now open your browser and go to 
+5. Now open your browser and go to 
 
     http://localhost:3080
 
-Troubleshooting Error 139
-
-If the database keeps crashing with exit code 139, it is because Fedora 44 has a conflict with hardware security features. The line GLIBC_TUNABLES=glibc.cpu.hwcaps=-shstk in the service file fixes this. Also, ensure all folders use the :Z flag in the service file to allow Fedora to access them securely.
-
-    Reload systemd: systemctl --user daemon-reload
-
-Start the service: 
-
-    systemctl --user start librechat-app.service
-
-Verify: Open your browser to 
-
-    http://localhost:3080.
-
+Notes
 SELinux: Always append the :Z flag to your volume mounts (e.g., Volume=%h/containers/librechat/mongodb:/data/db:Z) to allow Fedora to label the files correctly for rootless access.
 
 Kernel Tuning: For optimal performance, set vm.swappiness=1 and ensure Transparent Huge Pages (THP) are set to always on the host machine.
