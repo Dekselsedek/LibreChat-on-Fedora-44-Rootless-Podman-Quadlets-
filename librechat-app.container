@@ -1,0 +1,22 @@
+[Unit]
+Description=LibreChat Application
+After=librechat-db.service
+Wants=librechat-db.service
+
+[Container]
+ContainerName=librechat-app
+Image=ghcr.io/danny-avila/librechat:latest
+PublishPort=3080:3080
+Network=systemd-librechat.network
+# Update the paths below to match your chosen directory
+EnvironmentFile=%h/containers/librechat/config/librechat.env
+Volume=%h/containers/librechat/config/librechat.yaml:/app/librechat.yaml:Z
+Volume=%h/containers/librechat/images:/app/client/public/images:Z
+AutoUpdate=registry
+HealthCmd=curl -f http://localhost:3080/health || exit 1
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
