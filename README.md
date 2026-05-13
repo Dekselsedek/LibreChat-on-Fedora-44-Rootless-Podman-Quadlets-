@@ -53,3 +53,6 @@ Run these two commands:
 SELinux: Always append the :Z flag to your volume mounts (e.g., Volume=%h/containers/librechat/mongodb:/data/db:Z) to allow Fedora to label the files correctly for rootless access.
 
 Kernel Tuning: For optimal performance, set vm.swappiness=1 and ensure Transparent Huge Pages (THP) are set to always on the host machine.
+
+A special thanks to @disi for the initial build and foundation of this project.
+    https://github.com/disi/LibreChat_Podman/tree/main
