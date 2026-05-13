@@ -1,11 +1,16 @@
 [Unit]
-Description=LibreChat Database
+Description=LibreChat MongoDB
+Before=librechat-app.service
 
 [Container]
 ContainerName=librechat-db
 Image=docker.io/library/mongo:latest
-Volume=%h/containers/librechat/mongodb:/data/db:Z
-Network=systemd-librechat.network
+Volume=/home/koosdekker/containers/librechat/mongodb:/data/db:Z
+Network=systemd-librechat
+NetworkAlias=systemd-librechat
+AutoUpdate=registry
+Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+UserNS=keep-id
 
 [Service]
 Restart=always
