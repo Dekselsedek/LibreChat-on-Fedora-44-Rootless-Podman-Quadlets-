@@ -1,7 +1,7 @@
 # LibreChat-on-Fedora-44-Rootless-Podman-Quadlets-
 This guide describes the setup of LibreChat on Fedora 44 using systemd Quadlets. This configuration ensures your containers run as native systemd services under a specific user context.
 
-roubleshooting: Error 139 (SIGSEGV) on Fedora 44
+Troubleshooting: Error 139 (SIGSEGV) on Fedora 44
 
 During the deployment on Fedora 44, we identified a recurring crash with Exit Code 139 (Segmentation Fault) in the MongoDB container. While standard database optimizations are helpful, the root cause was tied to a conflict between the host's hardware security features and the container's glibc library.
 The Root Cause
